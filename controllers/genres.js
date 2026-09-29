@@ -2,7 +2,7 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../db/connect');
 
 const COLLECTION = 'genres';
-const REQUIRED_FIELDS = ['name', 'description', 'active'];
+const REQUIRED_FIELDS = ['name', 'description', 'popularity', 'active'];
 
 const TEXT_FIELDS = ['name', 'description'];
 
@@ -46,6 +46,21 @@ const validateGenre = (body) => {
       errors.push(field + ' must be a text value.');
     }
   });
+
+  // --- Nivel 3: o valor faz sentido? / Level 3: does the value make sense? ---
+  // PT: O else if garante que so comparamos a faixa depois de saber que e numero.
+  // EN: The else if makes sure we only compare the range once we know it is a number.
+  if (typeof body.popularity !== 'number') {
+    errors.push('popularity must be a number.');
+  } else if (body.popularity < 1 || body.popularity > 10) {
+    errors.push('popularity must be between 1 and 10.');
+  }
+
+  // PT: So true e false sem aspas sao 'boolean'; "true" com aspas e 'string'.
+  // EN: Only true and false without quotes are 'boolean'; "true" in quotes is a 'string'.
+  if (typeof body.active !== 'boolean') {
+    errors.push('active must be true or false.');
+  }
 
 
   return errors;
