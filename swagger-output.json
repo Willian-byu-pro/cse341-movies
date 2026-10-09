@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "CSE 341 - Movies API",
-    "description": "API for managing movies and genres. Built for the Week 03-04 project of CSE 341 (BYU-Idaho). Every route performs validation and error handling.",
+    "description": "API for managing movies and genres. Built for the Week 03-04 project of CSE 341 (BYU-Idaho). Every route performs validation and error handling. Write operations (POST, PUT, DELETE) require authentication through Auth0; read operations are public.",
     "version": "1.0.0"
   },
   "host": "localhost:3000",
@@ -15,11 +15,23 @@
     {
       "name": "Genres",
       "description": "Create, read, update and delete genres"
+    },
+    {
+      "name": "Auth",
+      "description": "OAuth 2.0 authentication with Auth0"
     }
   ],
   "schemes": [
     "http"
   ],
+  "securityDefinitions": {
+    "cookieAuth": {
+      "type": "apiKey",
+      "name": "Cookie",
+      "in": "header",
+      "description": "Session cookie set by GET /auth/callback after a successful Auth0 login. The cookie is httpOnly, so the browser sends it automatically and page scripts cannot read it. Routes marked with a lock require it."
+    }
+  },
   "consumes": [
     "application/json"
   ],
@@ -27,6 +39,92 @@
     "application/json"
   ],
   "paths": {
+    "/auth/login": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Start the login flow",
+        "description": "Generates a random state value, stores it in a short lived httpOnly cookie, and redirects the browser to Auth0. The user authenticates on Auth0, so this API never sees their password.",
+        "responses": {
+          "302": {
+            "description": "Redirect to the Auth0 login page."
+          }
+        }
+      }
+    },
+    "/auth/callback": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "OAuth callback",
+        "description": "Auth0 redirects here with a one time authorization code. The server checks the state parameter against the cookie to prevent CSRF, exchanges the code for tokens server to server, creates the user on first login, and sets the httpOnly session cookie.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "description": "One time authorization code issued by Auth0.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Random value that must match the oauth_state cookie.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logged in. The session cookie is set and the user is returned."
+          },
+          "400": {
+            "description": "Invalid state parameter or missing authorization code."
+          },
+          "500": {
+            "description": "Authentication failed."
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log out",
+        "description": "Clears the session cookie and redirects to Auth0 so the Auth0 session ends as well. Clearing only the local cookie would let the next login skip the password prompt.",
+        "responses": {
+          "302": {
+            "description": "Redirect to the Auth0 logout endpoint."
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get the logged in user",
+        "description": "Returns the user carried by the session cookie. This route is only available to authenticated users and is the simplest way to check whether a session is active.",
+        "responses": {
+          "200": {
+            "description": "The authenticated user."
+          },
+          "401": {
+            "description": "Authentication required, or the session is invalid or expired."
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
+      }
+    },
     "/movies/": {
       "get": {
         "tags": [
@@ -76,10 +174,18 @@
           "400": {
             "description": "Validation failed. The response lists every invalid field."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/movies/{id}": {
@@ -147,13 +253,21 @@
           "400": {
             "description": "Invalid id or validation failed."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "404": {
             "description": "Movie not found."
           },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -177,13 +291,21 @@
           "400": {
             "description": "Invalid movie id."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "404": {
             "description": "Movie not found."
           },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/genres/": {
@@ -235,10 +357,18 @@
           "400": {
             "description": "Validation failed. The response lists every invalid field."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     },
     "/genres/{id}": {
@@ -306,13 +436,21 @@
           "400": {
             "description": "Invalid id or validation failed."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "404": {
             "description": "Genre not found."
           },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       },
       "delete": {
         "tags": [
@@ -336,13 +474,21 @@
           "400": {
             "description": "Invalid genre id."
           },
+          "401": {
+            "description": "Authentication required."
+          },
           "404": {
             "description": "Genre not found."
           },
           "500": {
             "description": "Internal server error."
           }
-        }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ]
       }
     }
   },

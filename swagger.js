@@ -12,7 +12,7 @@ const doc = {
   info: {
     title: 'CSE 341 - Movies API',
     description:
-      'API for managing movies and genres. Built for the Week 03-04 project of CSE 341 (BYU-Idaho). Every route performs validation and error handling.',
+      'API for managing movies and genres. Built for the Week 03-04 project of CSE 341 (BYU-Idaho). Every route performs validation and error handling. Write operations (POST, PUT, DELETE) require authentication through Auth0; read operations are public.',
     version: '1.0.0'
   },
   host: host,
@@ -25,8 +25,22 @@ const doc = {
   // EN: Two tags = two separate sections on the Swagger page.
   tags: [
     { name: 'Movies', description: 'Create, read, update and delete movies' },
-    { name: 'Genres', description: 'Create, read, update and delete genres' }
+    { name: 'Genres', description: 'Create, read, update and delete genres' },
+    // MUDANCA: terceira secao na pagina do Swagger, para as rotas de login.
+    { name: 'Auth', description: 'OAuth 2.0 authentication with Auth0' }
   ],
+
+  // MUDANCA: descreve COMO a API se protege. Isto faz aparecer o botao
+  // "Authorize" na pagina do Swagger e o cadeado nas rotas protegidas.
+  securityDefinitions: {
+    cookieAuth: {
+      type: 'apiKey',
+      name: 'Cookie',
+      in: 'header',
+      description:
+        'Session cookie set by GET /auth/callback after a successful Auth0 login. The cookie is httpOnly, so the browser sends it automatically and page scripts cannot read it. Routes marked with a lock require it.'
+    }
+  },
 
   definitions: {
     Movie: {
