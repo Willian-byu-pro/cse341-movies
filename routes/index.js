@@ -16,7 +16,9 @@ router.get('/', (req, res) => {
   res.send('CSE 341 - Movies API. Interactive documentation at /api-docs');
 });
 
+router.use("/auth", require("./auth"));
 router.use('/movies', require('./movies'));
 router.use('/genres', require('./genres'));
+
 
 module.exports = router;

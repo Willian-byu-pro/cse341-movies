@@ -1,4 +1,6 @@
 require('dotenv').config();
+const cookieParser = require("cookie-parser");
+
 
 const express = require('express');
 const cors = require('cors');
@@ -10,6 +12,7 @@ const port = process.env.PORT || 3000;
 // PT: Sem esta linha, req.body chega vazio no POST e no PUT.
 // EN: Without this line, req.body arrives empty on POST and PUT.
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors());
 
 app.use('/', require('./routes'));
