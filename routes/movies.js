@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const moviesController = require('../controllers/movies');
+// MUDANCA: middleware que exige sessao nas rotas de escrita.
+const { authenticate } = require('../middleware/authenticate');
 
 // PT: Cada rota tem um corpo para as anotacoes #swagger. Elas viram a
 //     documentacao quando voce roda "npm run swagger".
@@ -39,8 +41,11 @@ router.get('/:id', (req, res) => {
   moviesController.getSingle(req, res);
 });
 
-router.post('/', (req, res) => {
+router.post('/', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Movies']
     #swagger.summary = 'Create a new movie'
     #swagger.description = 'Creates a movie. All eight fields are required and validated: year must be an integer between 1888 and the current year plus five, duration must be greater than zero, and rating must be between 0 and 10. Returns the new movie id.'
@@ -57,8 +62,11 @@ router.post('/', (req, res) => {
   moviesController.createMovie(req, res);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Movies']
     #swagger.summary = 'Update an existing movie'
     #swagger.description = 'Replaces the movie identified by the id. All eight fields are required and validated, exactly as in the create route.'
@@ -82,8 +90,11 @@ router.put('/:id', (req, res) => {
   moviesController.updateMovie(req, res);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Movies']
     #swagger.summary = 'Delete a movie'
     #swagger.description = 'Removes the movie identified by the id from the database.'

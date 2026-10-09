@@ -1,5 +1,7 @@
 const router = require('express').Router();
 const genresController = require('../controllers/genres');
+// MUDANCA: middleware que exige sessao nas rotas de escrita.
+const { authenticate } = require('../middleware/authenticate');
 
 // PT: Mesma estrutura de routes/movies.js, trocando o controller e a tag.
 // EN: Same structure as routes/movies.js, with a different controller and tag.
@@ -37,8 +39,11 @@ router.get('/:id', (req, res) => {
   genresController.getSingle(req, res);
 });
 
-router.post('/', (req, res) => {
+router.post('/', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Genres']
     #swagger.summary = 'Create a new genre'
     #swagger.description = 'Creates a genre. All four fields are required and validated: name and description must be text, popularity must be a number between 1 and 10, and active must be a boolean (true or false, without quotes). Returns the new genre id.'
@@ -55,8 +60,11 @@ router.post('/', (req, res) => {
   genresController.createGenre(req, res);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Genres']
     #swagger.summary = 'Update an existing genre'
     #swagger.description = 'Replaces the genre identified by the id. All four fields are required and validated, exactly as in the create route.'
@@ -80,8 +88,11 @@ router.put('/:id', (req, res) => {
   genresController.updateGenre(req, res);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticate, (req, res) => {
   /*
+    // MUDANCA: marca a rota como protegida no Swagger (cadeado)
+    #swagger.security = [{ "cookieAuth": [] }]
+    #swagger.responses[401] = { description: 'Authentication required.' }
     #swagger.tags = ['Genres']
     #swagger.summary = 'Delete a genre'
     #swagger.description = 'Removes the genre identified by the id from the database.'
